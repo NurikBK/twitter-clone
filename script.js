@@ -1,15 +1,36 @@
 import { tweetsData } from './data.js';
 
 const tweetBtn = document.querySelector('#tweet-btn');
-const feed = document.querySelector('#feed');
 const tweetInput = document.querySelector('#tweet-input');
 
 tweetBtn.addEventListener('click', () => {
   if (tweetInput.value !== '') {
-    feed.innerHTML = getFeedHtml();
     tweetInput.value = '';
   }
 });
+
+document.addEventListener('click', (e) => {
+  const like = e.target.dataset.like;
+  if (like) {
+    handleLikeClick(like);
+  }
+});
+
+function handleLikeClick(tweetId) {
+  const targetTweetObj = tweetsData.filter(
+    (tweet) => tweet.uuid === tweetId
+  )[0];
+
+  if (!targetTweetObj.isLiked) {
+    targetTweetObj.likes++;
+    targetTweetObj.isLiked = true;
+  } else {
+    targetTweetObj.isLiked = false;
+    targetTweetObj.likes--;
+  }
+
+  render();
+}
 
 function getFeedHtml() {
   let feedHtml = ``;
@@ -36,12 +57,15 @@ function getFeedHtml() {
                   <p class="tweet-text">${tweetText}</p>
                   <div class="tweet-details">
                       <span class="tweet-detail">
+                      <i class="fa-regular fa-comment-dots" data-reply="${uuid}"></i>
                           ${replies.length}
                       </span>
                       <span class="tweet-detail">
+                      <i class="fa-solid fa-heart" data-like="${uuid}"></i>
                           ${likes}
                       </span>
                       <span class="tweet-detail">
+                      <i class="fa-solid fa-retweet" data-retweet="${uuid}"></i>
                           ${retweets}
                       </span>
                   </div>   
@@ -49,8 +73,12 @@ function getFeedHtml() {
           </div>
       </div>
     `;
-
   });
-    return feedHtml;
+  return feedHtml;
 }
 
+function render() {
+  document.querySelector('#feed').innerHTML = getFeedHtml();
+}
+
+render();
